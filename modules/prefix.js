@@ -6,12 +6,10 @@
 'use strict';
 
 var ExecutionEnvironment = require('exenv');
-var kebabCase = require('lodash/string/kebabCase');
 
 var jsCssMap = {
     Webkit: '-webkit-',
     Moz: '-moz-',
-    // IE did it wrong again ...
     ms: '-ms-',
     O: '-o-'
 };
@@ -35,6 +33,14 @@ if (ExecutionEnvironment.canUseDOM) {
   }
 }
 
+var _camelCaseRegex = /(a-z)?(A-Z)/g;
+var _camelCaseReplacer = function (match, p1, p2) {
+  return p1 + '-' + p2.toLowerCase();
+};
+var _camelCaseToDashCase = function (s) {
+  return s.replace(_camelCaseRegex, _camelCaseReplacer);
+};
+
 var _getPrefixedProperty = function (property) {
   if (prefixedPropertyCache.hasOwnProperty(property)) {
     return prefixedPropertyCache[property];
@@ -46,7 +52,7 @@ var _getPrefixedProperty = function (property) {
   ) {
     // unprefixed
     prefixedPropertyCache[property] = {
-      css: kebabCase(property),
+      css: _camelCaseToDashCase(property),
       js: property
     };
     return prefixedPropertyCache[property];
@@ -57,7 +63,7 @@ var _getPrefixedProperty = function (property) {
   if (newProperty in domStyle) {
     // prefixed
     prefixedPropertyCache[property] = {
-      css: cssVendorPrefix + kebabCase(property),
+      css: cssVendorPrefix + _camelCaseToDashCase(property),
       js: newProperty
     };
     return prefixedPropertyCache[property];
